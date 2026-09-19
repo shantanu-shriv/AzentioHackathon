@@ -13,8 +13,16 @@ def main():
     df = df.merge(customers, on='customer_id', how='left')
     
     # Initialize the SLM Pipeline
-    # Note: We are using the base model since fine-tuning requires a CUDA GPU.
-    sentinel = FraudSentinelPipeline(model_path="models/Llama-3.2-1B")
+    # Attempt to load the fine-tuned model first. If it doesn't exist, fallback to the base model.
+    import os
+    if os.path.exists("fraud_sentinel_final"):
+        print("Found fine-tuned model! Loading...")
+        model_to_load = "fraud_sentinel_final"
+    else:
+        print("WARNING: Fine-tuned model not found. Falling back to the Raw Base Model (this may cause hallucinations!)")
+        model_to_load = "models/Llama-3.2-1B"
+        
+    sentinel = FraudSentinelPipeline(model_path=model_to_load)
     
     print(f"Loaded {len(df)} transactions. Starting batch processing...")
     
