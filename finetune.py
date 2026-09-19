@@ -1,4 +1,6 @@
 import torch
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
