@@ -1,0 +1,20 @@
+# Data files
+*.csv
+*.jsonl
+
+# Models
+models/
+fraud_sentinel_model/
+fraud_sentinel_final/
+
+# Python caches
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+
+# System files
+.DS_Store
