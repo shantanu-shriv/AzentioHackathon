@@ -1,40 +1,67 @@
 import pandas as pd
 import json
 import random
+from sklearn.ensemble import IsolationForest
 
 # 1. Load Cleaned Data
+print("Loading cleaned datasets...")
 transactions = pd.read_csv('transactions_cleaned.csv')
 accounts = pd.read_csv('accounts_cleaned.csv')
 customers = pd.read_csv('customers_cleaned.csv')
 
 # 2. Merge Data for Context
-# Merge transactions with accounts, then with customers
+print("Merging datasets...")
 df = transactions.merge(accounts, on=['account_id', 'customer_id'], how='left')
 df = df.merge(customers, on='customer_id', how='left')
 
-# 3. Create Synthetic Labels (Since no is_fraud column exists in the dataset)
-# We use banking heuristics to simulate fraud flags for training the SLM
-def flag_fraud(row):
-    # Rule 1: Abnormally high transaction ratio and high amount
-    if row['amount_to_account_avg_ratio'] > 5 and row['amount'] > 5000:
-        return True, "Extremely high amount relative to account history."
-    # Rule 2: Foreign transaction on a PIN-less channel
-    if row['is_foreign_transaction'] in ['1', 1, True, 'TRUE'] and row['auth_method'] == 'NONE':
-        return True, "Foreign transaction executed without authentication."
-    # Rule 3: High amount from a new device in a different country
-    if row['is_new_device'] in ['1', 1, True, 'TRUE'] and row['amount'] > 3000:
-        return True, "Large transaction from an unrecognized device."
-    
-    return False, "Transaction behavior matches standard account profile."
+# 3. Unsupervised Anomaly Detection (Isolation Forest)
+print("Extracting features for Isolation Forest...")
+# We select numerical columns that might indicate fraudulent behavior
+features = ['amount', 'distance_from_home_km', 'time_since_prev_txn_mins', 
+            'txn_count_last_24h', 'amount_to_account_avg_ratio']
 
-fraud_labels = df.apply(flag_fraud, axis=1)
-df['is_fraud'] = [x[0] for x in fraud_labels]
-df['justification'] = [x[1] for x in fraud_labels]
+# Convert booleans/strings to numeric where necessary
+df['is_foreign_numeric'] = df['is_foreign_transaction'].apply(lambda x: 1 if str(x).upper() in ['1', 'TRUE', 'YES'] else 0)
+df['is_new_device_numeric'] = df['is_new_device'].apply(lambda x: 1 if str(x).upper() in ['1', 'TRUE', 'YES'] else 0)
+features.extend(['is_foreign_numeric', 'is_new_device_numeric'])
 
-# Calculate a mock confidence score
-df['confidence'] = df['is_fraud'].apply(lambda x: round(random.uniform(0.85, 0.99), 2) if x else round(random.uniform(0.70, 0.99), 2))
+# Impute any remaining NaNs with 0 to prevent ML crashes
+X = df[features].fillna(0)
+
+print("Training Isolation Forest (Contamination = 2%)...")
+# contamination=0.02 means we expect the top 2% weirdest transactions to be fraud
+model = IsolationForest(contamination=0.02, random_state=42, n_jobs=-1)
+# Returns -1 for anomalies, 1 for normal
+anomaly_preds = model.fit_predict(X)
+
+# Map -1 to True (Fraud), 1 to False (Normal)
+df['is_fraud'] = [True if pred == -1 else False for pred in anomaly_preds]
+
+# Provide justification
+df['justification'] = df['is_fraud'].apply(
+    lambda x: "Transaction flagged as a multi-dimensional mathematical anomaly." if x 
+    else "Transaction behavior matches standard account profile."
+)
+
+# Calculate a mock confidence score based on the anomaly score
+# anomaly_score is negative for anomalies, positive for normal
+scores = model.decision_function(X)
+# Normalize scores to a pseudo-confidence between 0.70 and 0.99
+def calc_confidence(score, is_fraud):
+    if is_fraud:
+        # Lower score = more anomalous = higher confidence
+        return round(min(0.99, max(0.85, 0.85 + abs(score) * 0.5)), 2)
+    else:
+        # Higher score = more normal = higher confidence
+        return round(min(0.99, max(0.70, 0.70 + score * 0.5)), 2)
+
+df['confidence'] = [calc_confidence(s, f) for s, f in zip(scores, df['is_fraud'])]
+
+fraud_count = df['is_fraud'].sum()
+print(f"Isolation Forest identified {fraud_count} anomalous (fraud) transactions out of {len(df)}.")
 
 # 4. Generate JSONL Training Dataset for Fine-Tuning
+print("Generating JSONL Training Dataset...")
 train_data = []
 
 prompt_template = """You are an AI Fraud Sentinel. Analyze the following transaction and output a precise JSON risk profile.
@@ -48,14 +75,12 @@ Account Avg Ratio: {ratio}
 """
 
 for _, row in df.iterrows():
-    # Build the input prompt
     input_text = prompt_template.format(
         amount=row['amount'], currency=row.get('currency_x', row.get('currency', 'USD')), txn_type=row['transaction_type'],
         foreign=row['is_foreign_transaction'], device=row['device_type'], is_new=row['is_new_device'],
         auth=row['auth_method'], ratio=round(row['amount_to_account_avg_ratio'], 2) if pd.notnull(row['amount_to_account_avg_ratio']) else 1.0
     )
     
-    # Build the strict JSON output
     output_json = {
         "transaction_id": str(row['transaction_id']),
         "is_fraud": bool(row['is_fraud']),
@@ -63,7 +88,6 @@ for _, row in df.iterrows():
         "justification": str(row['justification'])
     }
     
-    # Format for Llama 3 Chat Template (Instruct format)
     llama_format = {
         "messages": [
             {"role": "system", "content": "You are a fraud detection SLM that only outputs strict JSON."},
@@ -73,10 +97,8 @@ for _, row in df.iterrows():
     }
     train_data.append(llama_format)
 
-# Save to JSONL
 with open('train_dataset.jsonl', 'w') as f:
     for entry in train_data:
         f.write(json.dumps(entry) + '\n')
 
-print(f"Generated synthetic training dataset with {len(train_data)} examples!")
-print("Saved to: train_dataset.jsonl")
+print(f"Saved to: train_dataset.jsonl")
