@@ -57,12 +57,14 @@ New Device: {clean_data.get('is_new_device')}
 Notes: {clean_data.get('notes', 'None')}
 """
         
-        messages = [
-            {"role": "system", "content": "You are a fraud detection SLM. Only output JSON."},
-            {"role": "user", "content": prompt}
-        ]
-        
-        formatted_prompt = self.pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        # Manually format the Llama 3 prompt since the base model doesn't have a default chat template
+        formatted_prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+You are a fraud detection SLM. Only output JSON.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"""
         
         # 3. Generate JSON
         outputs = self.pipe(formatted_prompt, max_new_tokens=150, temperature=0.1)
