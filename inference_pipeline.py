@@ -57,10 +57,36 @@ New Device: {clean_data.get('is_new_device')}
 Notes: {clean_data.get('notes', 'None')}
 """
         
-        # Manually format the Llama 3 prompt since the base model doesn't have a default chat template
+        # Manually format the Llama 3 prompt using FEW-SHOT PROMPTING. 
+        # Because we are on a CPU and cannot fine-tune the model, we give the Base Model an example 
+        # of exactly what we want so it copies the JSON pattern and stops hallucinating!
         formatted_prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-You are a fraud detection SLM. Only output JSON.<|eot_id|><|start_header_id|>user<|end_header_id|>
+You are a fraud detection SLM. Only output strict JSON.<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+You are an AI Fraud Sentinel. Analyze the following transaction and output a precise JSON risk profile.
+You MUST output ONLY valid JSON in the exact following schema:
+{{
+    "transaction_id": "string",
+    "is_fraud": boolean,
+    "confidence": float,
+    "justification": "string"
+}}
+
+Transaction Details:
+ID: TXN_EXAMPLE_01
+Amount: 9500.00 USD
+Foreign: 1
+New Device: 1
+Notes: None
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+{{
+    "transaction_id": "TXN_EXAMPLE_01",
+    "is_fraud": true,
+    "confidence": 0.96,
+    "justification": "Extremely high amount relative to account history from a foreign, new device."
+}}<|eot_id|><|start_header_id|>user<|end_header_id|>
 
 {prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
@@ -70,13 +96,16 @@ You are a fraud detection SLM. Only output JSON.<|eot_id|><|start_header_id|>use
         outputs = self.pipe(formatted_prompt, max_new_tokens=150, temperature=0.1)
         response = outputs[0]["generated_text"].split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
         
-        # Clean up output to extract JSON block if needed
+        # Clean up output to extract the FIRST JSON block.
+        # The Base Model hallucinates trailing text with extra braces, so we use regex to grab just the first block.
         try:
-            # Try to find JSON braces in case the model added extra conversational text
-            json_str = response[response.find('{'):response.rfind('}')+1]
-            return json.loads(json_str)
+            match = re.search(r'\{[^{}]*\}', response)
+            if match:
+                return json.loads(match.group(0))
+            else:
+                return {"error": "SLM did not return any JSON", "raw_output": response}
         except json.JSONDecodeError:
-            return {"error": "SLM did not return strict JSON", "raw_output": response}
+            return {"error": "SLM returned malformed JSON", "raw_output": response}
 
 if __name__ == "__main__":
     sentinel = FraudSentinelPipeline()
