@@ -24,14 +24,13 @@ def main():
         
     sentinel = FraudSentinelPipeline(model_path=model_to_load)
     
-    print(f"Loaded {len(df)} transactions. Starting batch processing...")
+    print(f"Loaded {len(df)} transactions. Starting processing on GPU...")
     
     final_results = []
     
-    # Process the first 5 transactions as a proof-of-concept for the hackathon
-    # (Running all rows on a CPU would take hours)
-    for idx, row in df.head(5).iterrows():
-        print(f"Processing TXN: {row['transaction_id']}...")
+    for idx, row in df.iterrows():
+        if idx % 10 == 0:
+            print(f"Processing TXN: {row['transaction_id']} ({idx + 1}/{len(df)})...")
         
         # Convert row to dictionary format expected by the pipeline
         txn_data = row.to_dict()

@@ -10,13 +10,11 @@ from transformers import pipeline
 class FraudSentinelPipeline:
     def __init__(self, model_path="models/Llama-3.2-1B"):
         print(f"Loading SLM from: {model_path}")
-        # Note: If you run this on a GPU-enabled machine, use device_map="auto"
-        # We use CPU here so it physically runs on your current environment
         self.pipe = pipeline(
             "text-generation",
             model=model_path,
-            torch_dtype=torch.float32, 
-            device_map="cpu" 
+            torch_dtype=torch.float16, 
+            device_map="auto" 
         )
     def is_safe_input(self, text):
         if not text or str(text).lower() == "none" or str(text).lower() == "nan":

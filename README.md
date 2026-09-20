@@ -2,15 +2,35 @@
 
 This repository contains an end-to-end Python pipeline for the AI Engineering Hackathon. It processes messy relational data, synthesizes fraud labels using Machine Learning anomaly detection, fine-tunes a Small Language Model (SLM) via QLoRA, and deploys a strict JSON inference pipeline with adversarial prompt injection defenses.
 
+## 🧠 Architecture Overview: Hybrid Fraud Detection
+
+This project uses a clever hybrid architecture to solve the "Cold Start" problem:
+1. **Unsupervised ML for Ground Truth:** Because the raw datasets lacked an explicit `is_fraud` label, we use Scikit-Learn's **Isolation Forest** (an unsupervised algorithm). It mathematically analyzes the data to detect the weirdest outliers (e.g. extreme amounts, foreign devices) and generates synthetic `is_fraud` labels.
+2. **SLM for Reasoning & Justification:** While the Isolation Forest is great at math, it can't read text or explain *why* something is fraud. We use the synthetic labels to fine-tune a Llama-3 1B SLM. During inference, the SLM acts as the final judge—reading user notes, understanding context, neutralizing prompt injections, and generating a **human-readable justification** in strict JSON format.
+
 ## 🚀 How to Run the Project
 
 This pipeline is designed to be executed sequentially. Follow the steps below:
 
-### 1. Environment Setup
-Install the required dependencies. 
+### 1. Lightning-Fast Environment Setup (Using `uv`)
+We highly recommend using `uv` to manage the environment and ensure the correct CUDA versions are installed, especially on Windows.
 
 ```bash
-pip install pandas numpy torch transformers accelerate peft bitsandbytes trl datasets huggingface_hub scikit-learn
+# 1. Install uv (if you don't have it)
+irm https://astral.sh/uv/install.ps1 | iex
+
+# 2. Create a virtual environment with Python 3.12
+uv venv venv --python 3.12
+
+# 3. Activate the environment
+.\venv\Scripts\activate   # (PowerShell)
+# OR .\venv\Scripts\activate.bat (CMD)
+
+# 4. Install all dependencies from requirements.txt
+uv pip install -r requirements.txt
+
+# 5. Install PyTorch with CUDA 12.1 support (Required for RTX/NVIDIA GPUs)
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ### 2. Download the SLM
@@ -34,7 +54,7 @@ python clean_others.py
 *(This produces `transactions_cleaned.csv`, `accounts_cleaned.csv`, and `customers_cleaned.csv`).*
 
 ### 4. Synthesize the Training Dataset
-Because the raw data lacks an explicit `is_fraud` label, we dynamically synthesize labels using advanced **Unsupervised Machine Learning**. We use Scikit-Learn's `IsolationForest` to mathematically detect and flag the weirdest 2% of anomalous transactions.
+This runs the Isolation Forest logic to mathematically flag anomalies and synthesize our "ground truth" for the SLM.
 
 ```bash
 python prepare_dataset.py
@@ -43,20 +63,19 @@ python prepare_dataset.py
 
 ### 5. Fine-Tune the SLM (Requires CUDA GPU)
 To teach the model how to output strict JSON and understand the fraud heuristics, we fine-tune the 1B parameter model using **QLoRA (4-bit quantization)**. 
-*Note: This script requires a native CUDA-enabled GPU and bitsandbytes. If your local machine is CPU-only, you must run this script in Google Colab or Kaggle.*
 
 ```bash
 python finetune.py
 ```
-*(This uses the `trl` SFTTrainer to fine-tune the SLM and saves the final weights to the `fraud_sentinel_final/` directory).*
+*(This uses the `trl` SFTTrainer to fine-tune the SLM on your GPU and saves the final weights to the `fraud_sentinel_final/` directory).*
 
-### 6. Run the Final Inference Pipeline
-The final deliverable. This pipeline intercepts raw transaction JSON, sanitizes it to neutralize adversarial prompt injections (e.g., "ignore previous instructions"), and queries the SLM to output a strict, parsable JSON risk profile.
+### 6. Run the Final GPU Inference Pipeline
+The final deliverable. This pipeline iterates through the entire dataset, sanitizes transaction notes to neutralize adversarial prompt injections (e.g., "ignore previous instructions"), and queries the GPU-accelerated SLM to output a strict, parsable JSON risk profile.
 
 ```bash
 python batch_inference.py
 ```
-*(This will process your transactions and output the final `final_predictions.json`. **Note**: If run on a CPU-only machine without the fine-tuned adapter weights from Step 5, the Base Model will hallucinate instead of returning strict JSON. This correctly demonstrates the necessity of the fine-tuning pipeline!)*
+*(This will rapidly process your transactions on the GPU and output the final predictions to `final_predictions.json`.)*
 
 ---
 *Built for the AI Engineering Hackathon - Relational Data Wrangler & Fraud Sentinel Challenge.*
