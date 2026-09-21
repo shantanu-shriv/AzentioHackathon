@@ -28,7 +28,7 @@ def main():
     
     final_results = []
     
-    for idx, row in df.iterrows():
+    for idx, row in df.head(50).iterrows():
         if idx % 10 == 0:
             print(f"Processing TXN: {row['transaction_id']} ({idx + 1}/{len(df)})...")
         

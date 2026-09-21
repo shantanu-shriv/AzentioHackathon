@@ -3,30 +3,300 @@
         "transaction_id": "TXN_0000796",
         "is_fraud": false,
         "confidence": 0.0,
-        "justification": "Low amount relative to account history from a foreign, new device."
+        "justification": "Transaction type matches account history."
     },
     {
         "transaction_id": "TXN_0000974",
         "is_fraud": false,
         "confidence": 0.0,
-        "justification": "Low amount relative to account history from a foreign, new device."
+        "justification": "Transaction type matches account history."
     },
     {
         "transaction_id": "TXN_0000795",
         "is_fraud": false,
-        "confidence": 0.99,
-        "justification": "Low amount relative to account history from a foreign, new device."
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
     },
     {
         "transaction_id": "TXN_0000695",
         "is_fraud": false,
-        "confidence": 0.99,
-        "justification": "Low amount relative to account history from a foreign, new device."
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
     },
     {
         "transaction_id": "TXN_0000588",
         "is_fraud": false,
-        "confidence": 0.99,
-        "justification": "Low amount relative to account history from a foreign, new device."
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000011",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000849",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000714",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000515",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000299",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000208",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000062",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000198",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000708",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000535",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000790",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000360",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000625",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000705",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000225",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000440",
+        "is_fraud": true,
+        "confidence": 0.96,
+        "justification": "High amount from foreign device, no other risk factors."
+    },
+    {
+        "transaction_id": "TXN_0000305",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000394",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000328",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000609",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000910",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000806",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000549",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000464",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000570",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000256",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000042",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000541",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000419",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000427",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000197",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000181",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000266",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000776",
+        "is_fraud": true,
+        "confidence": 0.96,
+        "justification": "High amount from foreign device, no other risk factors."
+    },
+    {
+        "transaction_id": "TXN_0000013",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000957",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000143",
+        "is_fraud": true,
+        "confidence": 0.96,
+        "justification": "High amount from foreign device, no other risk factors."
+    },
+    {
+        "transaction_id": "TXN_0000704",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000640",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000108",
+        "is_fraud": true,
+        "confidence": 0.96,
+        "justification": "High amount from foreign device, no other risk factors."
+    },
+    {
+        "transaction_id": "TXN_0000087",
+        "is_fraud": true,
+        "confidence": 0.96,
+        "justification": "Foreign transaction with no prior account history."
+    },
+    {
+        "transaction_id": "TXN_0000494",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000358",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
+    },
+    {
+        "transaction_id": "TXN_0000271",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches typical account behavior."
+    },
+    {
+        "transaction_id": "TXN_0000509",
+        "is_fraud": false,
+        "confidence": 0.0,
+        "justification": "Transaction type matches account history."
     }
 ]

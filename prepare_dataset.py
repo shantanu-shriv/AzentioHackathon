@@ -28,9 +28,9 @@ features.extend(['is_foreign_numeric', 'is_new_device_numeric'])
 # Impute any remaining NaNs with 0 to prevent ML crashes
 X = df[features].fillna(0)
 
-print("Training Isolation Forest (Contamination = 2%)...")
-# contamination=0.02 means we expect the top 2% weirdest transactions to be fraud
-model = IsolationForest(contamination=0.02, random_state=42, n_jobs=-1)
+print("Training Isolation Forest (Contamination = 10%)...")
+# contamination=0.10 means we expect the top 10% weirdest transactions to be fraud
+model = IsolationForest(contamination=0.10, random_state=42, n_jobs=-1)
 # Returns -1 for anomalies, 1 for normal
 anomaly_preds = model.fit_predict(X)
 

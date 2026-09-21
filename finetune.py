@@ -2,7 +2,7 @@ import torch
 import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer
 
@@ -25,10 +25,11 @@ def main():
     
     print("Loading Model in 4-bit (QLoRA)...")
     # This requires bitsandbytes and a CUDA GPU
+    quant_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         device_map="auto",
-        load_in_4bit=True
+        quantization_config=quant_config
     )
     
     # Prepare model for LoRA
@@ -52,16 +53,18 @@ def main():
         optim="paged_adamw_8bit",
         logging_steps=10,
         learning_rate=2e-4,
-        max_steps=100, 
-        warmup_ratio=0.03,
+        max_steps=300, 
+        warmup_steps=10,
         lr_scheduler_type="constant",
     )
     
     print("Initializing SFT Trainer...")
+    tokenizer.chat_template = "{% for message in messages %}{% if message['role'] == 'system' %}{{ '<|start_header_id|>system<|end_header_id|>\\n\\n' + message['content'] + '<|eot_id|>' }}{% elif message['role'] == 'user' %}{{ '<|start_header_id|>user<|end_header_id|>\\n\\n' + message['content'] + '<|eot_id|>' }}{% elif message['role'] == 'assistant' %}{{ '<|start_header_id|>assistant<|end_header_id|>\\n\\n' + message['content'] + '<|eot_id|>' }}{% endif %}{% endfor %}"
     trainer = SFTTrainer(
         model=model,
         train_dataset=dataset,
         args=training_args,
+        processing_class=tokenizer,
     )
     
     print("Starting Fine-Tuning...")
